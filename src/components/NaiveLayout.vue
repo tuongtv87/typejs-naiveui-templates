@@ -1,0 +1,168 @@
+<template>
+  <n-layout position="absolute">
+    <n-layout-header bordered style="height: 64px;">
+      <n-space justify="space-between" align="center" style="padding: 0 20px; height: 100%;">
+        <span>Header Header Header</span>
+        <n-menu mode="horizontal" :options="menuOptions" />
+        <n-button text @click="handleToggleTheme">
+          <template #icon>
+            <n-icon>
+              <MoonOutline v-if="isLightTheme" />
+              <SunnyOutline v-else />
+            </n-icon>
+          </template>
+        </n-button>
+      </n-space>
+    </n-layout-header>
+    <n-layout has-sider position="absolute" style="top: 64px; bottom: 64px;">
+      <n-layout-sider
+        bordered
+        show-trigger
+        collapse-mode="width"
+        :collapsed-width="64"
+        :width="240"
+        :native-scrollbar="false"
+      >
+        <n-menu
+          style="height: 100%;"
+          :collapsed-width="64"
+          :collapsed-icon-size="22"
+          :options="menuOptions"
+        />
+      </n-layout-sider>
+      <n-layout content-style="padding: 24px;" :native-scrollbar="false">
+        <router-view />
+      </n-layout>
+    </n-layout>
+    <n-layout-footer bordered position="absolute" style="height: 64px; bottom: 0;">
+      Footer Footer Footer
+    </n-layout-footer>
+  </n-layout>
+</template>
+
+<script lang="ts">
+import type { Component, Ref } from 'vue'
+import { computed, inject } from 'vue'
+import {
+  BookOutline as BookIcon,
+  PersonOutline as PersonIcon,
+  WineOutline as WineIcon,
+  SunnyOutline,
+  MoonOutline
+} from '@vicons/ionicons5'
+import { NIcon, NButton } from 'naive-ui'
+import type { GlobalTheme } from 'naive-ui'
+import { defineComponent, h } from 'vue'
+import { RouterView } from 'vue-router'
+
+function renderIcon(icon: Component) {
+  return () => h(NIcon, null, { default: () => h(icon) })
+}
+
+const menuOptions = [
+  {
+    label: 'Hear the Wind Sing',
+    key: 'hear-the-wind-sing',
+    icon: renderIcon(BookIcon)
+  },
+  {
+    label: 'Pinball 1973',
+    key: 'pinball-1973',
+    icon: renderIcon(BookIcon),
+    disabled: true,
+    children: [
+      {
+        label: 'Rat',
+        key: 'rat'
+      }
+    ]
+  },
+  {
+    label: 'A Wild Sheep Chase',
+    key: 'a-wild-sheep-chase',
+    disabled: true,
+    icon: renderIcon(BookIcon)
+  },
+  {
+    label: 'Dance Dance Dance',
+    key: 'Dance Dance Dance',
+    icon: renderIcon(BookIcon),
+    children: [
+      {
+        type: 'group',
+        label: 'People',
+        key: 'people',
+        children: [
+          {
+            label: 'Narrator',
+            key: 'narrator',
+            icon: renderIcon(PersonIcon)
+          },
+          {
+            label: 'Sheep Man',
+            key: 'sheep-man',
+            icon: renderIcon(PersonIcon)
+          }
+        ]
+      },
+      {
+        label: 'Beverage',
+        key: 'beverage',
+        icon: renderIcon(WineIcon),
+        children: [
+          {
+            label: 'Whisky',
+            key: 'whisky'
+          }
+        ]
+      },
+      {
+        label: 'Food',
+        key: 'food',
+        children: [
+          {
+            label: 'Sandwich',
+            key: 'sandwich'
+          }
+        ]
+      },
+      {
+        label: 'The past increases. The future recedes.',
+        key: 'the-past-increases-the-future-recedes'
+      }
+    ]
+  }
+]
+
+export default defineComponent({
+  components: {
+    RouterView,
+    NIcon,
+    NButton,
+    SunnyOutline,
+    MoonOutline
+  },
+  setup() {
+    const toggleTheme = inject<() => void>('toggleTheme')
+    const currentTheme = inject<Ref<GlobalTheme>>('currentTheme')
+
+    const handleToggleTheme = () => {
+      if (toggleTheme && currentTheme) {
+        toggleTheme();
+      }
+    }
+
+    const isLightTheme = computed(() => currentTheme?.value.name === 'light')
+
+    return {
+      menuOptions,
+      handleToggleTheme,
+      isLightTheme
+    }
+  }
+})
+</script>
+
+<style scoped>
+/* Bạn có thể thêm CSS tùy chỉnh ở đây nếu cần */
+</style> 
