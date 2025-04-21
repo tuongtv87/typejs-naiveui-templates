@@ -2,14 +2,14 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue' // Tạo file này ở bước sau
 import AboutView from '../views/AboutView.vue' // Tạo file này ở bước sau
-import LoginView from '../views/LoginView.vue' // Import LoginView
+import LoginLayout from "../layout/LoginLayout.vue"; // Cập nhật đường dẫn đúng
 import NaiveLayout from '../components/NaiveLayout.vue' // Import Layout
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
     name: 'Login',
-    component: LoginView,
+    component: LoginLayout, // Sử dụng LoginLayout mới
     meta: { requiresAuth: false } // Đánh dấu route này không cần đăng nhập
   },
   {

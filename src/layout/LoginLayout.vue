@@ -4,7 +4,6 @@
       <template #1>
         <div class="left-panel">
           <div class="left-content">
-            <!-- Placeholder cho Logo -->
             <n-avatar
               round
               :size="80"
@@ -14,7 +13,6 @@
             <h1 class="app-title">tuongtv2</h1>
             <p class="tagline">Manage multiple profile without worrying about detection</p>
           </div>
-          <!-- Nút chuyển theme ở góc dưới -->
           <n-button text class="theme-toggle-button" @click="handleToggleTheme">
             <template #icon>
               <n-icon size="20">
@@ -83,7 +81,7 @@ import { ref, reactive, computed, inject, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   NForm, NFormItemRow, NInput, NButton, NAlert,
-  NRow, NCol, NCheckbox, NAvatar, NIcon, NSplit
+  NRow, NCol, NCheckbox, NAvatar, NIcon, NSplit, NLayout
 } from 'naive-ui';
 import type { FormInst, FormRules, GlobalTheme } from 'naive-ui';
 import type { Ref } from 'vue';
@@ -215,12 +213,14 @@ onMounted(() => {
   font-weight: 600;
   color: var(--text-color-1);
   margin-bottom: 5px;
+  text-align: left; /* Căn trái cho Welcome back */
 }
 
 .welcome-subtitle {
   font-size: 1rem;
   color: var(--text-color-2);
   margin-bottom: 20px;
+  text-align: left; /* Căn trái cho Continue to Automator */
 }
 
 .signup-link {
@@ -232,45 +232,18 @@ onMounted(() => {
 
 .signup-link n-button {
   font-size: 0.875rem; /* Cùng kích thước với 'New to Genlogin?' */
+  margin-left: 5px; /* Khoảng cách nhỏ giữa 'Genlogin?' và 'Get started' */
 }
 
 :deep(.n-input .n-input__input-el) {
   text-align: left !important;
   font-size: 1.1rem;
-  padding: 12px;
+  padding: 0px; /* Giảm padding để gần lề trái hơn */
 }
 
 :deep(.n-form-item-row .n-form-item-label) {
   color: var(--text-color-2);
   font-weight: 500;
-}
-
-.theme-toggle-button {
-  position: absolute;
-  bottom: 50px;
-  left: 50px;
-  color: white !important;
-  font-size: 1.2rem;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.n-form-item-row {
-  margin-bottom: 20px;
-}
-
-.n-button {
-  font-size: 1.1rem;
-  padding: 12px 24px;
-}
-
-.n-row {
-  justify-content: space-between;
 }
 
 .n-col:first-child {
@@ -281,25 +254,23 @@ onMounted(() => {
   text-align: right !important; /* Căn phải cho Forgot password? */
 }
 
-.welcome-title, .welcome-subtitle {
-  text-align: left; /* Căn trái cho Welcome back và Continue to Automator */
+.n-row {
+  justify-content: space-between; /* Căn chỉnh Remember me và Forgot password */
 }
 
-.n-col:last-child n-button {
-  color: white !important; /* Màu chữ trắng */
-  transition: color 0.3s ease; /* Thêm hiệu ứng chuyển màu */
-}
-
-.n-col:last-child n-button:hover {
-  color: var(--primary-color); /* Màu khi hover */
-}
-
-:root[data-theme='dark'] .n-col:last-child n-button:hover {
-  color: var(--primary-color-light); /* Màu khi hover trong dark theme */
-}
-
-:root[data-theme='light'] .n-col:last-child n-button:hover {
-  color: var(--primary-color-dark); /* Màu khi hover trong light theme */
+.theme-toggle-button {
+  position: absolute;
+  bottom: 50px;
+  left: 50px;
+  color: white !important;
+  font-size: 1.2rem;
+  background-color: rgba(255, 255, 255, 0.2); /* Màu nền cho vòng tròn */
+  border-radius: 50%; /* Tạo vòng tròn */
+  width: 60px; /* Đặt kích thước vòng tròn */
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .tagline {
