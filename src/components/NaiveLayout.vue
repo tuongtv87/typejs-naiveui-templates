@@ -1,17 +1,25 @@
 <template>
-  <n-layout position="absolute">
+  <n-layout position="absolute" style="overflow: hidden;">
     <n-layout-header bordered style="height: 64px;">
       <n-space justify="space-between" align="center" style="padding: 0 20px; height: 100%;">
         <span>Header Header Header</span>
-        <n-menu mode="horizontal" :options="menuOptions" />
-        <n-button text @click="handleToggleTheme">
-          <template #icon>
-            <n-icon>
-              <MoonOutline v-if="isLightTheme" />
-              <SunnyOutline v-else />
-            </n-icon>
-          </template>
-        </n-button>
+        <n-space>
+          <n-button text @click="handleToggleTheme">
+            <template #icon>
+              <n-icon>
+                <MoonOutline v-if="isLightTheme" />
+                <SunnyOutline v-else />
+              </n-icon>
+            </template>
+          </n-button>
+          <n-button text @click="handleLogout">
+            <template #icon>
+              <n-icon>
+                <LogOutOutline />
+              </n-icon>
+            </template>
+          </n-button>
+        </n-space>
       </n-space>
     </n-layout-header>
     <n-layout has-sider position="absolute" style="top: 64px; bottom: 64px;">
@@ -48,12 +56,13 @@ import {
   PersonOutline as PersonIcon,
   WineOutline as WineIcon,
   SunnyOutline,
-  MoonOutline
+  MoonOutline,
+  LogOutOutline
 } from '@vicons/ionicons5'
-import { NIcon, NButton } from 'naive-ui'
+import { NIcon, NButton, NSpace } from 'naive-ui'
 import type { GlobalTheme } from 'naive-ui'
 import { defineComponent, h } from 'vue'
-import { RouterView } from 'vue-router'
+import { useRouter, RouterView } from 'vue-router'
 
 function renderIcon(icon: Component) {
   return () => h(NIcon, null, { default: () => h(icon) })
@@ -139,12 +148,15 @@ export default defineComponent({
     RouterView,
     NIcon,
     NButton,
+    NSpace,
     SunnyOutline,
-    MoonOutline
+    MoonOutline,
+    LogOutOutline
   },
   setup() {
     const toggleTheme = inject<() => void>('toggleTheme')
     const currentTheme = inject<Ref<GlobalTheme>>('currentTheme')
+    const router = useRouter()
 
     const handleToggleTheme = () => {
       if (toggleTheme && currentTheme) {
@@ -152,11 +164,17 @@ export default defineComponent({
       }
     }
 
+    const handleLogout = () => {
+      localStorage.removeItem('loggedIn');
+      router.push({ name: 'Login' });
+    }
+
     const isLightTheme = computed(() => currentTheme?.value.name === 'light')
 
     return {
       menuOptions,
       handleToggleTheme,
+      handleLogout,
       isLightTheme
     }
   }

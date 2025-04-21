@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, provide, computed, onMounted, watch } from 'vue'
-import NaiveLayout from './components/NaiveLayout.vue'
 import { NConfigProvider, NMessageProvider, NDialogProvider, NNotificationProvider, NLoadingBarProvider, NGlobalStyle, darkTheme, lightTheme } from 'naive-ui'
 import type { GlobalTheme } from 'naive-ui'
+import { RouterView } from 'vue-router'
 
 // Mặc định light theme
 const _currentTheme = ref<GlobalTheme>(lightTheme)
@@ -42,7 +42,7 @@ provide('currentTheme', _currentTheme)
       <n-dialog-provider>
         <n-notification-provider placement="bottom">
           <n-loading-bar-provider>
-            <NaiveLayout />
+            <router-view />
           </n-loading-bar-provider>
         </n-notification-provider>
       </n-dialog-provider>
@@ -51,14 +51,28 @@ provide('currentTheme', _currentTheme)
 </template>
 
 <style>
-/* CSS toàn cục nếu cần thiết */
-body {
+/* Reset box-sizing global */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Áp dụng cho toàn bộ trang */
+html, body {
   margin: 0;
   padding: 0;
-  /* height: 100vh; Không cần thiết khi layout gốc là absolute */
+  height: 100%; /* Đảm bảo body chiếm đủ chiều cao */
+  overflow: hidden; /* Ngăn body cuộn */
+}
+
+/* CSS toàn cục nếu cần thiết */
+body {
+  /* Các style cũ của body đã được chuyển lên trên */
 }
 #app {
-  /* height: 100%; Không cần thiết khi layout gốc là absolute */
-  font-family: sans-serif; /* Thêm font mặc định */
+  font-family: sans-serif;
+  height: 100vh; /* #app vẫn cần 100vh để làm gốc cho các layout con */
+  width: 100vw; /* Đảm bảo #app chiếm đủ chiều rộng */
 }
 </style>
