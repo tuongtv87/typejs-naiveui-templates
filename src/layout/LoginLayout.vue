@@ -25,7 +25,48 @@
       </template>
       <template #2>
         <div class="right-panel">
-          <div class="login-form-wrapper">
+          <div v-if="isRegistering" class="register-form-wrapper">
+            <h2 class="welcome-title">Welcome to Genlogin</h2>
+            <p class="welcome-subtitle">One step signup to get 5 profiles free!</p>
+
+            <n-form ref="registerFormRef" :model="registerForm" :rules="registerRules" @submit.prevent="handleRegister" style="margin-top: 30px;">
+              <n-form-item-row path="email" label="Email">
+                <n-input v-model:value="registerForm.email" placeholder="Email" size="large" />
+              </n-form-item-row>
+              <n-form-item-row path="password" label="Password">
+                <n-input
+                  type="password"
+                  show-password-on="mousedown"
+                  v-model:value="registerForm.password"
+                  placeholder="Password"
+                  size="large"
+                />
+              </n-form-item-row>
+              <n-form-item-row path="confirmPassword" label="Confirm password">
+                <n-input
+                  type="password"
+                  show-password-on="mousedown"
+                  v-model:value="registerForm.confirmPassword"
+                  placeholder="Confirm password"
+                  size="large"
+                />
+              </n-form-item-row>
+
+              <n-button type="primary" attr-type="submit" block :loading="loading" @click="handleRegister" size="large">
+                Submit
+              </n-button>
+
+              <n-alert v-if="registerErrorMsg" title="Registration Failed" type="error" closable @close="registerErrorMsg = ''" style="margin-top: 20px;">
+                {{ registerErrorMsg }}
+              </n-alert>
+            </n-form>
+
+            <p class="signup-link">
+              Already have a Genlogin account? <n-button text type="primary" @click="toggleRegistering">Login</n-button>
+            </p>
+          </div>
+
+          <div v-else class="login-form-wrapper">
             <h2 class="welcome-title">Welcome back</h2>
             <p class="welcome-subtitle">Continue to Automator</p>
 
@@ -67,7 +108,7 @@
             </n-form>
 
             <p class="signup-link">
-              New to Genlogin? <n-button text type="primary">Get started</n-button>
+              New to Genlogin? <n-button text type="primary" @click="toggleRegistering">Get started</n-button>
             </p>
           </div>
         </div>
@@ -87,20 +128,29 @@ import type { FormInst, FormRules, GlobalTheme } from 'naive-ui';
 import type { Ref } from 'vue';
 import { SunnyOutline, MoonOutline } from '@vicons/ionicons5';
 
+// Truy cập API đã expose qua preload script (tạm thời không dùng)
+// Đảm bảo bạn đã tạo electron/preload.ts và cấu hình nó trong main process
+// và tạo src/electron.d.ts để có type checking
+// const ipcRenderer = window.require ? window.require('electron').ipcRenderer : null; // Xóa cách cũ
+
 const router = useRouter();
 const formRef = ref<FormInst | null>(null);
+const registerFormRef = ref<FormInst | null>(null);
 const loading = ref(false);
 const errorMsg = ref('');
+const registerErrorMsg = ref('');
 const rememberMe = ref(false);
-
-// Keys cho localStorage
-const usernameStorageKey = 'rememberedUsername';
-const passwordStorageKey = 'rememberedPassword';
-const rememberMeStorageKey = 'rememberMe';
+const isRegistering = ref(false);
 
 const loginForm = reactive({
   username: '',
   password: '',
+});
+
+const registerForm = reactive({
+  email: '',
+  password: '',
+  confirmPassword: '',
 });
 
 const rules: FormRules = {
@@ -108,40 +158,109 @@ const rules: FormRules = {
   password: [{ required: true, message: 'Please input password', trigger: 'blur' }],
 };
 
+const registerRules: FormRules = {
+  email: [{ required: true, message: 'Please input email', trigger: 'blur' }],
+  password: [{ required: true, message: 'Please input password', trigger: 'blur' }],
+  confirmPassword: [{ required: true, message: 'Please confirm your password', trigger: 'blur' }]
+};
+
+// Lấy lại thông tin đăng nhập admin từ biến môi trường
 const correctUsername = import.meta.env.VITE_LOGIN_USER;
 const correctPassword = import.meta.env.VITE_LOGIN_PASS;
 
-const handleLogin = (e?: Event | KeyboardEvent) => {
+const handleLogin = async (e?: Event | KeyboardEvent) => {
+  // Bỏ qua kiểm tra API
   if (e) e.preventDefault();
-  formRef.value?.validate((errors) => {
+  formRef.value?.validate(async (errors) => {
     if (!errors) {
       loading.value = true;
       errorMsg.value = '';
-      setTimeout(() => {
-        if (loginForm.username === correctUsername && loginForm.password === correctPassword) {
-          // Đăng nhập thành công
+      try {
+        // === Chỉ kiểm tra với biến môi trường ===
+        const loginSuccess = loginForm.username === correctUsername && loginForm.password === correctPassword;
+
+        // Giả lập độ trễ
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        if (loginSuccess) {
           localStorage.setItem('loggedIn', 'true');
+          localStorage.setItem('rememberedUsername', loginForm.username);
           if (rememberMe.value) {
-            // Lưu thông tin nếu Remember Me được check
-            localStorage.setItem(usernameStorageKey, loginForm.username);
-            localStorage.setItem(passwordStorageKey, loginForm.password); // Lưu ý: Lưu password dạng text là không an toàn!
-            localStorage.setItem(rememberMeStorageKey, 'true');
+            localStorage.setItem('rememberedPassword', loginForm.password);
+            localStorage.setItem('rememberMe', 'true');
           } else {
-            // Xóa thông tin nếu Remember Me không được check
-            localStorage.removeItem(usernameStorageKey);
-            localStorage.removeItem(passwordStorageKey);
-            localStorage.removeItem(rememberMeStorageKey);
+            localStorage.removeItem('rememberedPassword');
+            localStorage.removeItem('rememberMe');
           }
           router.push('/');
         } else {
-          errorMsg.value = 'Incorrect username or password.';
+          errorMsg.value = 'Incorrect username or password.'; // Thông báo lỗi chuẩn
         }
+        // === Kết thúc logic ===
+
+      } catch (error: any) {
+        console.error('Login error:', error);
+        errorMsg.value = 'An error occurred during login.';
+      } finally {
         loading.value = false;
-      }, 500);
+      }
     } else {
       console.log(errors);
     }
   });
+};
+
+const handleRegister = async (e?: Event | KeyboardEvent) => {
+  // Tạm thời bỏ qua kiểm tra window.electronAPI
+  // if (!window.electronAPI) {
+  //   registerErrorMsg.value = 'Electron API not available. Check preload script.';
+  //   return;
+  // }
+  if (e) e.preventDefault();
+  registerFormRef.value?.validate(async (errors) => {
+    if (!errors) {
+      loading.value = true;
+      registerErrorMsg.value = '';
+      if (registerForm.password !== registerForm.confirmPassword) {
+        registerErrorMsg.value = 'Passwords do not match.';
+        loading.value = false;
+        return;
+      }
+      try {
+        // === Tạm thời bỏ qua logic gọi IPC và ghi file ===
+        // const result = await window.electronAPI.invoke('register-attempt', {
+        //   email: registerForm.email,
+        //   password: registerForm.password
+        // });
+
+        // === Logic đăng ký tạm thời ===
+        console.log('Simulating registration for:', registerForm.email);
+        // Giả lập thành công sau 1 giây
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const registrationSuccess = true; // Giả sử luôn thành công để test UI
+        // const result = { success: registrationSuccess, message: '' };
+
+        if (registrationSuccess) { // Sử dụng logic tạm thời
+          toggleRegistering(); // Chuyển về màn hình login
+        } else {
+          registerErrorMsg.value = 'Registration failed (temporary check).';
+        }
+        // === Kết thúc logic tạm thời ===
+
+      } catch (error: any) {
+        console.error('Registration error (temporary):', error);
+        registerErrorMsg.value = 'An error occurred during registration (temporary).';
+      } finally {
+        loading.value = false;
+      }
+    } else {
+      console.log(errors);
+    }
+  });
+};
+
+const toggleRegistering = () => {
+  isRegistering.value = !isRegistering.value;
 };
 
 const toggleTheme = inject<() => void>('toggleTheme');
@@ -155,11 +274,10 @@ const handleToggleTheme = () => {
 
 const isLightTheme = computed(() => currentTheme?.value.name === 'light');
 
-// Đọc thông tin đã lưu khi component mount
 onMounted(() => {
-  const savedUsername = localStorage.getItem(usernameStorageKey);
-  const savedPassword = localStorage.getItem(passwordStorageKey);
-  const wasRemembered = localStorage.getItem(rememberMeStorageKey) === 'true';
+  const savedUsername = localStorage.getItem('rememberedUsername');
+  const savedPassword = localStorage.getItem('rememberedPassword');
+  const wasRemembered = localStorage.getItem('rememberMe') === 'true';
 
   if (wasRemembered && savedUsername && savedPassword) {
     loginForm.username = savedUsername;
@@ -185,7 +303,8 @@ onMounted(() => {
   text-align: center;
   overflow: hidden;
   position: relative;
-  border-bottom-right-radius: 200px; /* Bo tròn góc phải dưới */
+  border-top-right-radius: 50px; /* Bo tròn góc phải trên */
+  border-bottom-right-radius: 50px; /* Bo tròn góc phải dưới */
 }
 
 .right-panel {
@@ -202,7 +321,7 @@ onMounted(() => {
 }
 
 /* Đảm bảo login-form-wrapper không vượt quá kích thước tối đa */
-.login-form-wrapper {
+.login-form-wrapper, .register-form-wrapper {
   width: 100%;
   max-width: 500px;
 }
@@ -238,7 +357,7 @@ onMounted(() => {
 :deep(.n-input .n-input__input-el) {
   text-align: left !important;
   font-size: 1.1rem;
-  padding: 0px; /* Giảm padding để gần lề trái hơn */
+  padding: 0; /* Đặt padding bằng 0 */
 }
 
 :deep(.n-form-item-row .n-form-item-label) {

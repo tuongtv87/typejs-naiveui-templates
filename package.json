@@ -24,6 +24,7 @@
     "clean:release": "rimraf release release-new"
   },
   "dependencies": {
+    "@types/node": "^22.14.1",
     "@vicons/ionicons5": "^0.13.0",
     "naive-ui": "^2.41.0",
     "vfonts": "^0.0.3",
