@@ -10,11 +10,13 @@
         :native-scrollbar="false"
         style="height: 100vh; display: flex; flex-direction: column;"
       >
-        <div class="sider-logo-section" style="height: 64px; display: flex; align-items: center; padding: 0 40px; flex-shrink: 0;">
-          <n-icon size="28" style="margin-right: 10px;">
-            <BuildOutline />
-          </n-icon>
-          <span style="font-size: 18px; font-weight: bold;">Tinker Truong</span>
+        <div class="sider-logo-section" style="height: 64px; display: flex; align-items: center; padding: 0 24px; flex-shrink: 0;">
+          <img 
+            src="@/assets/logo.png" 
+            alt="Logo" 
+            style="height: 32px; margin-right: 10px;"
+          />
+          <span style="font-size: 18px; font-weight: bold;">Tinker</span>
         </div>
 
         <div class="sider-menu-section" style="flex-grow: 1; overflow: auto;">
@@ -83,8 +85,7 @@ import {
   MoonOutline,
   LogOutOutline,
   ChevronDownOutline,
-  KeyOutline,
-  BuildOutline
+  KeyOutline
 } from '@vicons/ionicons5'
 import {
   NLayout, NLayoutSider, NLayoutHeader, NLayoutContent, NMenu,
@@ -188,8 +189,7 @@ export default defineComponent({
     NDropdown,
     SunnyOutline,
     MoonOutline,
-    ChevronDownOutline,
-    BuildOutline
+    ChevronDownOutline
   },
   setup() {
     const toggleTheme = inject<() => void>('toggleTheme')
