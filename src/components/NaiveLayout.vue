@@ -1,41 +1,6 @@
 <template>
-  <n-layout position="absolute" style="overflow: hidden;">
-    <n-layout-header bordered style="height: 64px;">
-      <n-space justify="space-between" align="center" style="padding: 0 20px; height: 100%;">
-        <span>Header Header Header</span>
-        <n-space :size="30" align="center">
-          <n-button text @click="handleToggleTheme" style="display: flex; align-items: center; justify-content: center;">
-            <template #icon>
-              <n-icon>
-                <MoonOutline v-if="isLightTheme" />
-                <SunnyOutline v-else />
-              </n-icon>
-            </template>
-          </n-button>
-          
-          <!-- Menu người dùng -->
-          <n-dropdown
-            trigger="click"
-            :options="userMenuOptions"
-            @select="handleSelect"
-            placement="bottom-end"
-          >
-            <n-button text>
-              <n-space align="center">
-                <n-avatar
-                  round
-                  size="small"
-                  src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg"
-                />
-                <span>{{ username }}</span>
-                <n-icon size="tiny"><ChevronDownOutline /></n-icon>
-              </n-space>
-            </n-button>
-          </n-dropdown>
-        </n-space>
-      </n-space>
-    </n-layout-header>
-    <n-layout has-sider position="absolute" style="top: 64px; bottom: 64px;">
+  <n-layout position="absolute" style="height: 100vh; width: 100vw; overflow: hidden;">
+    <n-layout has-sider style="height: 100%;">
       <n-layout-sider
         bordered
         show-trigger
@@ -43,21 +8,67 @@
         :collapsed-width="64"
         :width="240"
         :native-scrollbar="false"
+        style="height: 100vh; display: flex; flex-direction: column;"
       >
-        <n-menu
-          style="height: 100%;"
-          :collapsed-width="64"
-          :collapsed-icon-size="22"
-          :options="menuOptions"
-        />
+        <div class="sider-logo-section" style="height: 64px; display: flex; align-items: center; padding: 0 40px; flex-shrink: 0;">
+          <n-icon size="28" style="margin-right: 10px;">
+            <BuildOutline />
+          </n-icon>
+          <span style="font-size: 18px; font-weight: bold;">Tinker Truong</span>
+        </div>
+
+        <div class="sider-menu-section" style="flex-grow: 1; overflow: auto;">
+          <n-menu
+            style="height: 100%;"
+            :collapsed-width="64"
+            :collapsed-icon-size="22"
+            :options="menuOptions"
+          />
+        </div>
       </n-layout-sider>
-      <n-layout content-style="padding: 24px;" :native-scrollbar="false">
-        <router-view />
+
+      <n-layout style="height: 100vh;">
+        <n-layout-header style="height: 64px; padding: 0 20px;">
+          <n-space justify="space-between" align="center" style="height: 100%;">
+            <div></div>
+            <n-space :size="30" align="center">
+              <n-button text @click="handleToggleTheme" style="display: flex; align-items: center; justify-content: center;">
+                <template #icon>
+                  <n-icon>
+                    <MoonOutline v-if="isLightTheme" />
+                    <SunnyOutline v-else />
+                  </n-icon>
+                </template>
+              </n-button>
+              
+              <!-- Menu người dùng -->
+              <n-dropdown
+                trigger="click"
+                :options="userMenuOptions"
+                @select="handleSelect"
+                placement="bottom-end"
+              >
+                <n-button text>
+                  <n-space align="center">
+                    <n-avatar
+                      round
+                      size="small"
+                      src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg"
+                    />
+                    <span>{{ username }}</span>
+                    <n-icon size="tiny"><ChevronDownOutline /></n-icon>
+                  </n-space>
+                </n-button>
+              </n-dropdown>
+            </n-space>
+          </n-space>
+        </n-layout-header>
+
+        <n-layout-content content-style="padding: 24px; height: calc(100vh - 64px);" :native-scrollbar="false">
+          <router-view />
+        </n-layout-content>
       </n-layout>
     </n-layout>
-    <n-layout-footer bordered position="absolute" style="height: 64px; bottom: 0;">
-      Footer Footer Footer
-    </n-layout-footer>
   </n-layout>
 </template>
 
@@ -72,10 +83,14 @@ import {
   MoonOutline,
   LogOutOutline,
   ChevronDownOutline,
-  KeyOutline
+  KeyOutline,
+  BuildOutline
 } from '@vicons/ionicons5'
-import { NIcon, NButton, NSpace, NAvatar, NDropdown } from 'naive-ui'
-import type { GlobalTheme, DropdownOption } from 'naive-ui'
+import {
+  NLayout, NLayoutSider, NLayoutHeader, NLayoutContent, NMenu,
+  NIcon, NButton, NSpace, NAvatar, NDropdown,
+  type GlobalTheme, type DropdownOption
+} from 'naive-ui'
 import { defineComponent, h } from 'vue'
 import { useRouter, RouterView } from 'vue-router'
 
@@ -161,6 +176,11 @@ const menuOptions = [
 export default defineComponent({
   components: {
     RouterView,
+    NLayout,
+    NLayoutSider,
+    NLayoutHeader,
+    NLayoutContent,
+    NMenu,
     NIcon,
     NButton,
     NSpace,
@@ -168,8 +188,8 @@ export default defineComponent({
     NDropdown,
     SunnyOutline,
     MoonOutline,
-    LogOutOutline,
-    ChevronDownOutline
+    ChevronDownOutline,
+    BuildOutline
   },
   setup() {
     const toggleTheme = inject<() => void>('toggleTheme')
@@ -177,7 +197,6 @@ export default defineComponent({
     const router = useRouter()
     const username = ref('')
 
-    // Lấy username từ localStorage khi component được mount
     onMounted(() => {
       username.value = localStorage.getItem('rememberedUsername') || 'User'
     })
@@ -210,7 +229,6 @@ export default defineComponent({
       if (key === 'logout') {
         handleLogout();
       } else if (key === 'change-password') {
-        // Xử lý đổi mật khẩu (sẽ thực hiện sau)
         console.log('Change password clicked');
       }
     }

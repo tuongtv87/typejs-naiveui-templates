@@ -303,8 +303,7 @@ onMounted(() => {
   text-align: center;
   overflow: hidden;
   position: relative;
-  border-top-right-radius: 50px; /* Bo tròn góc phải trên */
-  border-bottom-right-radius: 50px; /* Bo tròn góc phải dưới */
+  border-bottom-right-radius: 200px; /* Bo tròn góc phải dưới */
 }
 
 .right-panel {

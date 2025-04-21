@@ -75,4 +75,41 @@ body {
   height: 100vh; /* #app vẫn cần 100vh để làm gốc cho các layout con */
   width: 100vw; /* Đảm bảo #app chiếm đủ chiều rộng */
 }
+
+/* Override Naive UI dark theme text colors */
+.n-config-provider[data-theme="dark"] {
+  --text-color-base: #FFFFFF !important;
+  --text-color-1: #FFFFFF !important;
+  --text-color-2: rgba(255, 255, 255, 0.82) !important; /* Slightly less prominent for secondary text */
+  --text-color-3: rgba(255, 255, 255, 0.52) !important; /* Even less prominent for tertiary/disabled text */
+}
+
+/* Specific override for tagline if needed (adjust selector if necessary) */
+.n-config-provider[data-theme="dark"] .tagline {
+  opacity: 1 !important; /* Ensure tagline is fully opaque */
+}
+
+/* Ensure menu item labels in dark theme are fully opaque */
+.n-config-provider[data-theme="dark"] .n-menu .n-menu-item-content__title {
+    color: #FFFFFF !important;
+    opacity: 1 !important;
+}
+
+/* Ensure dropdown option labels in dark theme are fully opaque */
+.n-config-provider[data-theme="dark"] .n-dropdown-option-body__label {
+    color: #FFFFFF !important;
+    opacity: 1 !important;
+}
+
+/* Ensure general button text in dark theme is fully opaque */
+.n-config-provider[data-theme="dark"] .n-button .n-button__content {
+    color: inherit !important; /* Inherit from parent or use specific color */
+    opacity: 1 !important;
+}
+
+/* Ensure text button specifically */
+.n-config-provider[data-theme="dark"] .n-button--text-type .n-button__content {
+    color: #FFFFFF !important; /* White for text buttons */
+    opacity: 1 !important;
+}
 </style>
